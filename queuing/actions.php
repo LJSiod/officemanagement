@@ -1,0 +1,70 @@
+<?php
+error_reporting(0);
+session_start();
+date_default_timezone_set('Asia/Manila');
+include '../db.php';
+include 'logger.php';
+
+$id = $_POST['id'];
+$action = $_POST['action'];
+$note = $_POST['note'];
+$counter = $_POST['counter'];
+$cashonhand = $_POST['cashonhand'];
+$password = $_POST['password'];
+$username = $_POST['username'];
+$branchid = $_SESSION['branchid'];
+$userid = $_SESSION['userid'];
+
+switch ($action) {
+    case 'decline':
+        $query = "UPDATE queueinfo SET cashonhandstatus = 'DECLINED', status = 'DONE', note = '$note' WHERE id = $id";
+        $log = $id . " Declined by: " . $_SESSION['name'] . ", Note: '" . $note . "'";
+        break;
+    case 'receive':
+        $query = "UPDATE queueinfo SET cashonhandstatus = 'RECEIVED', status = 'DONE', note = '$note' WHERE id = $id";
+        $log = $id . " Received by: " . $_SESSION['name'] . ", Note: '" . $note . "'";
+        break;
+    case 'updatereceived':
+        $query = "UPDATE queueinfo SET cashonhandstatus = 'RECEIVED' WHERE id = $id";
+        $log = $id . " Status Updated to RECEIVED by: " . $_SESSION['name'];
+        break;
+    case 'updatedeclined':
+        $query = "UPDATE queueinfo SET cashonhandstatus = 'DECLINED' WHERE id = $id";
+        $log = $id . " Status Updated to DECLINED by: " . $_SESSION['name'];
+        break;
+    case 'return':
+        $query = "UPDATE queueinfo SET status = 'IN QUEUE', servedby = '$userid' WHERE id = $id";
+        $log = $id . " Returned by: " . $_SESSION['name'];
+        break;
+    case 'serve':
+        $query = "UPDATE queueinfo SET status = 'SERVING', servedby = '$userid' WHERE id = $id";
+        $log = $id . " Served by: " . $_SESSION['name'];
+        break;
+    case 'password':
+        $query = "UPDATE users SET password = '$password' WHERE id = $userid";
+        $log = $_SESSION['name'] . " updated their password";
+        break;
+    case 'username':
+        $query = "UPDATE users SET username = '$username' WHERE id = $userid";
+        $log = $_SESSION['name'] . " updated their username";
+        break;
+    case 'note':
+        $query = "UPDATE queueinfo SET note = '$note', cashonhand = '$cashonhand' WHERE id = $id";
+        $log = $_SESSION['name'] . " updated " . $id . "'s note to: '" . $note . "'" . ", Cash on Hand: '" . $cashonhand . "'";
+        break;
+    case 'assign':
+        $query = "UPDATE branch SET userid = '$counter' WHERE id = $id";
+        $log = "Branch ID: " . $id . " was assigned to Counter #: " . $counter . " by " . $_SESSION['name'];
+        break;
+    default:
+        echo "Invalid action";
+        exit();
+}
+
+if (mysqli_query($conn, $query)) {
+    $logger->log($log);
+    header("Location: views/dashboard.php");
+    exit();
+} else {
+    echo "Error: " . mysqli_error($conn);
+}
