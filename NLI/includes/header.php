@@ -14,9 +14,6 @@ $username = $_SESSION['username'];
 $position = $_SESSION['position'];
 $positionid = $_SESSION['positionid'];
 $admin = !in_array($positionid, [5, 6, 7]);
-$query = "SELECT Username FROM useraccount WHERE id = $userid";
-$result = $conn->query($query);
-$row = $result->fetch_assoc();
 ?>
 
 <head>

@@ -1,6 +1,5 @@
 <?php
 session_start();
-include '../db.php';
 include '../includes/header.php';
 
 ?>
@@ -16,7 +15,6 @@ include '../includes/header.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="../assets/css/styles.css" rel="stylesheet">
     <link href="../assets/css/loader.css" rel="stylesheet">
-    <title>Remittance Collection</title>
 </head>
 
 <style>
@@ -66,18 +64,20 @@ include '../includes/header.php';
                         <select class="form-select form-select-sm" id="branchselect" required disabled>
                         </select>
                         <input type="hidden" id="branch" name="branch">
-                        <input class="form-check-input" id="allchannel" type="checkbox" checked>
-                        <label class="form-label small" for="allchannel">Select All Channel</label>
-                        <select class="form-select form-select-sm" id="channelselect" required disabled>
+                        <input type="hidden" id="branchname" name="branchname">
+                        <input class="form-check-input" id="alltype" type="checkbox" checked>
+                        <label class="form-label small" for="alltype">Select All Type</label>
+                        <select class="form-select form-select-sm" id="typeselect" required disabled>
                         </select>
-                        <input type="hidden" id="channel" name="channel">
+                        <input type="hidden" id="type" name="type">
                     </div>
                     <div class="col">
-                        <input class="form-check-input" id="allreceiver" type="checkbox" checked>
-                        <label class="form-label small" for="allreceiver">Select All Receiver</label>
-                        <select class="form-select form-select-sm" id="receiverselect" required disabled>
+                        <input class="form-check-input" id="alleditor" type="checkbox" checked>
+                        <label class="form-label small" for="alleditor">Select All Editor</label>
+                        <select class="form-select form-select-sm" id="editorselect" required disabled>
                         </select>
-                        <input type="hidden" id="receiver" name="receiver">
+                        <input type="hidden" id="editor" name="editor">
+                        <input type="hidden" id="editorname" name="editorname">
                         <button type="submit" id="generate" class="btn btn-sm btn-primary mt-4">Generate</button>
                     </div>
                 </div>
@@ -98,8 +98,10 @@ include '../includes/header.php';
 <script>
     $(document).ready(function () {
         $('#branch').val('All Branch');
-        $('#channel').val('All Channels');
-        $('#receiver').val('All Receivers');
+        $('#branchname').val('All Branch');
+        $('#type').val('All Types');
+        $('#editor').val('All Editors');
+        $('#editorname').val('All Editors');
 
         $(document).off('click', '#generate').on('click', '#generate', function (e) {
             e.preventDefault();
@@ -136,63 +138,69 @@ include '../includes/header.php';
             type: 'GET',
             dataType: 'json',
             success: function (data) {
-                var channelselect = $('#channelselect');
-                channelselect.empty();
-                data.channel.forEach(function (channel) {
-                    channelselect.append('<option>' + channel.channel + '</option>');
+                var typeselect = $('#typeselect');
+                typeselect.empty();
+                data.type.forEach(function (type) {
+                    typeselect.append('<option>' + type.type + '</option>');
                 });
                 var branchselect = $('#branchselect');
                 branchselect.empty();
                 data.branch.forEach(function (branch) {
-                    branchselect.append('<option>' + branch.name + '</option>');
+                    branchselect.append('<option value="' + branch.id + '">' + branch.name + '</option>');
                 });
-                var receiverselect = $('#receiverselect');
-                receiverselect.empty();
-                data.receiver.forEach(function (receiver) {
-                    receiverselect.append('<option>' + receiver.receivername + '</option>');
+                var editorselect = $('#editorselect');
+                editorselect.empty();
+                data.editor.forEach(function (editor) {
+                    editorselect.append('<option value="' + editor.id + '">' + editor.fullname + '</option>');
                 });
             }
         });
 
         $('#branchselect').on('change', function () {
             $('#branch').val(this.value);
+            $('#branchname').val($('option:selected', this).text());
         });
 
-        $('#channelselect').on('change', function () {
-            $('#channel').val(this.value);
+        $('#typeselect').on('change', function () {
+            $('#type').val(this.value);
         });
 
-        $('#receiverselect').on('change', function () {
-            $('#receiver').val(this.value);
+        $('#editorselect').on('change', function () {
+            $('#editor').val(this.value);
+            $('#editorname').val($('option:selected', this).text());
         });
 
         $('#allbranch').on('change', function () {
             if (this.checked) {
                 $('#branchselect').prop('disabled', true);
                 $('#branch').val('All Branch');
+                $('#branchname').val('All Branch');
             } else {
                 $('#branchselect').prop('disabled', false);
-                $('#branch').val($('#branchselect option:selected').text());
+                $('#branch').val($('#branchselect').val());
+                $('#branchname').val($('#branchselect option:selected').text());
             }
         });
 
-        $('#allchannel').on('change', function () {
+        $('#alltype').on('change', function () {
             if (this.checked) {
-                $('#channelselect').prop('disabled', true);
-                $('#channel').val('All Channels');
+                $('#typeselect').prop('disabled', true);
+                $('#type').val('All Types');
             } else {
-                $('#channelselect').prop('disabled', false);
-                $('#channel').val($('#channelselect option:selected').text());
+                $('#typeselect').prop('disabled', false);
+                $('#type').val($('#typeselect option:selected').text());
             }
         });
 
-        $('#allreceiver').on('change', function () {
+        $('#alleditor').on('change', function () {
             if (this.checked) {
-                $('#receiverselect').prop('disabled', true);
-                $('#receiver').val('All Receivers');
+                $('#editorselect').prop('disabled', true);
+                $('#editor').val('All Editors');
+                $('#editorname').val('All Editors');
             } else {
-                $('#receiverselect').prop('disabled', false);
-                $('#receiver').val($('#receiverselect option:selected').text());
+                $('#editorselect').prop('disabled', false);
+                $('#editor').val($('#editorselect').val());
+                $('#editorname').val($('#editorselect option:selected').text());
             }
         });
 

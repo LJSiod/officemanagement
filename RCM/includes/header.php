@@ -42,6 +42,14 @@ $admin = !in_array($positionid, [5, 6, 7]);
     .profile {
       width: 220px;
     }
+
+    .selected {
+      border-bottom: 3px solid #009688;
+      font-weight: bolder;
+      color: #0056b3;
+      background-color: rgba(0, 150, 135, 0.11);
+      padding-bottom: 2px;
+    }
   </style>
 </head>
 
@@ -64,8 +72,8 @@ $admin = !in_array($positionid, [5, 6, 7]);
           </li>
         <?php } else { ?>
           <li class="nav-item">
-            <a href="reports.php" class="nav-link" id="reports"><i class="fa fa-file-text text-success"
-                aria-hidden="true"></i>
+            <a href="reports.php" class="nav-link <?= $page == 'reports.php' ? 'selected' : ''; ?>" id="reports"><i
+                class="fa fa-file-text text-success" aria-hidden="true"></i>
               Reports</a>
           </li>
         <?php } ?>

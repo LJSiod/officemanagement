@@ -51,7 +51,13 @@ $query = "
 $result = $conn->query($query);
 $data = [];
 
+function sanitize($text)
+{
+    return preg_replace('/[^\P{C}\n\r\t]+/u', '', $text);
+}
+
 use PhpOffice\PhpWord\TemplateProcessor;
+
 $template = new TemplateProcessor('../assets/templates/RCM_Template.docx');
 
 while ($row = $result->fetch_assoc()) {
@@ -69,18 +75,17 @@ $template->setValue("selectedchannel", $channel);
 $template->setValue("selectedbranch", $branch);
 $template->setValue("selectedreceiver", $receiver);
 
-
 foreach ($data as $i => $row) {
     $n = $i + 1;
-    $template->setValue("branch#$n", $row['name']);
-    $template->setValue("channel#$n", $row['channel']);
-    $template->setValue("ref#$n", $row['transactioncode']);
-    $template->setValue("sender#$n", $row['sendername']);
-    $template->setValue("customer#$n", $row['fullname']);
+    $template->setValue("branch#$n", sanitize($row['name']));
+    $template->setValue("channel#$n", sanitize($row['channel']));
+    $template->setValue("ref#$n", sanitize($row['transactioncode']));
+    $template->setValue("sender#$n", sanitize($row['sendername']));
+    $template->setValue("customer#$n", sanitize($row['fullname']));
     $template->setValue("amount#$n", number_format($row['transamount'], 2));
     $template->setValue("datereceived#$n", date('M j, Y h:i A', strtotime($row['datetimereceived'])));
-    $template->setValue("receiver#$n", $row['receivername']);
-    $template->setValue("sentby#$n", $row['transby']);
+    $template->setValue("receiver#$n", sanitize($row['receivername']));
+    $template->setValue("sentby#$n", sanitize($row['transby']));
 }
 $template->setValue("rcmcount", $resultnumber);
 $template->setValue("totalamount", number_format($totalamount, 2));
@@ -93,11 +98,11 @@ $pdfFile = realpath('../temp/') . '/' . 'RCMreport' . '.pdf';
 $command = "soffice --headless --convert-to pdf --outdir " . escapeshellarg(dirname($pdfFile)) . " " . escapeshellarg($docxFile);
 
 exec($command, $output, $returnCode);
-unlink($docxFile);
 
 // Return response
 if ($returnCode === 0) {
     echo json_encode(array('success' => true, 'status' => 'Details generated successfully!', 'filename' => basename($pdfFile)));
+    unlink($docxFile);
     mysqli_close($conn);
     exit;
 } else {

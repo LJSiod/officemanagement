@@ -39,7 +39,7 @@ $currentdate = date('Y-m-d');
         .br-section-wrapper {
             border-radius: 3px;
             padding: 20px;
-            max-height: 89vh;
+            max-height: 91vh;
             height: auto;
             box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.21);
             opacity: 95%;
@@ -97,7 +97,8 @@ $currentdate = date('Y-m-d');
                         <span class="text-uppercase text-muted small" id="counter"></span>
                     <?php } ?>
                 </div>
-                <table id="approvaltable" class="table table-hover table-responsive-sm align-middle">
+                <table style="font-size: 0.8rem;" id="approvaltable"
+                    class="table table-hover table-responsive-sm align-middle">
                     <thead class="border" title="Click to Sort">
                         <tr>
                             <?php if ($admin) { ?>
@@ -121,7 +122,7 @@ $currentdate = date('Y-m-d');
                             <?php } ?>
                         </tr>
                     </thead>
-                    <tbody style="font-size: 0.9rem;">
+                    <tbody>
                     </tbody>
                 </table>
             </div>
@@ -164,7 +165,7 @@ $currentdate = date('Y-m-d');
                 order: false,
                 <?php if ($admin) { ?>columns: [
                         { data: 'BranchName', render: function (data, type, row) { return "<b class='text-uppercase'>" + data + "</b>"; } },
-                        { data: "Borrower", render: function (data, type, row) { return '<span style="white-space:normal">' + data + "</span>"; } },
+                        { data: "Borrower" },
                         { data: 'PreviousLoanAmount' },
                         { data: 'ProposedLoanAmount' },
                         { data: 'ApprovedLoanAmount' },
@@ -206,7 +207,7 @@ $currentdate = date('Y-m-d');
                 <?php } ?>
 
                 deferRender: true,
-                scrollY: '64vh', //67vh
+                scrollY: '66vh', //67vh
                 scroller: true,
                 drawCallback: function () {
                     $('.dts_label').hide();

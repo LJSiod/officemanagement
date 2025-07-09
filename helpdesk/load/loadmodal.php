@@ -3,14 +3,17 @@ error_reporting(0);
 session_start();
 include '../../db.php';
 
+$positionid = $_SESSION['positionid'];
+$admin = in_array($positionid, [1, 2, 3, 13]);
 $branchid = $_SESSION['branchid'];
+$id = $_POST['id'];
 
 $query = "
     SELECT 
         t.*,
         t.id as TID,
-        CONCAT(p.FirstName, ' ', p.MiddleName, '. ', p.LastName) AS updatedby,
-        b.name AS branchname 
+        b.name AS branchname ,
+        CONCAT(p.FirstName, ' ', p.MiddleName, '. ', p.LastName) AS updatedby
     FROM 
         officemanagementdb.ticketinfo t 
     LEFT JOIN 
@@ -18,14 +21,11 @@ $query = "
     LEFT JOIN
         payroll.employee p ON t.updatedby = p.ID
     WHERE 
-        t.status = 'OPEN'
-    ORDER BY 
-        t.id ASC
+        t.id = '$id'
 ";
 
 $result = mysqli_query($conn, $query);
 if (mysqli_num_rows($result) > 0) {
-    $data = array();
     while ($row = mysqli_fetch_assoc($result)) {
         $attquery = "SELECT * FROM attachments WHERE ticketid = '" . $row['TID'] . "'";
         $attresult = mysqli_query($conn, $attquery);
@@ -35,7 +35,7 @@ if (mysqli_num_rows($result) > 0) {
                 'filepath' => $attrow['filepath']
             );
         }
-        $data[] = array(
+        $data = array(
             'ID' => $row['TID'],
             'branchid' => $row['branchid'],
             'branchname' => $row['branchname'],
@@ -55,7 +55,7 @@ if (mysqli_num_rows($result) > 0) {
         );
     }
     mysqli_close($conn);
-    echo json_encode(array('data' => $data));
+    echo json_encode($data);
 } else {
     echo json_encode(array('data' => array()));
 }

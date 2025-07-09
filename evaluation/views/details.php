@@ -19,7 +19,6 @@ $filename = $_GET['filename'];
     iframe {
         width: 100%;
         height: 88vh;
-        border-radius: 15px;
         opacity: 90%;
     }
 </style>

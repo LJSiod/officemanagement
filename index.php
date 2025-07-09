@@ -15,7 +15,7 @@ $officedbname = "officemanagementdb";
 $conn = new mysqli($servername, $username, $password, $dbname);
 $officeconn = new mysqli($servername, $username, $password, $officedbname);
 date_default_timezone_set('Asia/Manila');
-$_SESSION['version'] = '1.1.2';
+$_SESSION['version'] = '1.1.3';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
@@ -52,10 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (mysqli_num_rows($result) == 1) {
         $user = mysqli_fetch_assoc($result);
-        // if ($user['Username'] == 20240226) {
-        //     header("Location: https://www.homecredit.ph/get-installments/get-product-installments-uc2211?utm_source=google&utm_medium=cpc&utm_campaign=online_pm-pos-acqui-google_rsla_lgm_uc_2.2.1.1_pos_rsa_manual_branded_pos-kws_rsa_pos_copy-hcph_lgp_pos_get-product-installments-uc2211_021925&gad_source=1&gad_campaignid=22257539900&gbraid=0AAAAA-qgd_NqqXRnytZ1k7IQjnDH_tqa8&gclid=EAIaIQobChMIlajir-fbjQMVS6lmAh2FkTNJEAAYASAAEgJe2fD_BwE");
-        // }
-
         $_SESSION['IDNumber'] = $user['IDNumber'];
         $_SESSION['positionid'] = $user['PositionID'];
         $admin = !in_array($_SESSION['positionid'], [5, 6, 7]);

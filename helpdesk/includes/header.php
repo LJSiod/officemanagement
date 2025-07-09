@@ -13,7 +13,7 @@ $branchid = $_SESSION['branchid'];
 $username = $_SESSION['username'];
 $position = $_SESSION['position'];
 $positionid = $_SESSION['positionid'];
-$admin = !in_array($positionid, [5, 6, 7]);
+$admin = in_array($positionid, [1, 2, 3, 13]);
 ?>
 
 <head>
@@ -66,10 +66,16 @@ $admin = !in_array($positionid, [5, 6, 7]);
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav" style="font-family: Raleway; font-size: 13.5px;">
-        <li class="nav-item <?= $page == 'evaluate.php' ? 'selected' : ''; ?>">
+        <li class="nav-item <?= $page == 'createticket.php' ? 'selected' : ''; ?>">
           <a href="createticket.php" class="nav-link"><i class="fa fa-plus text-success" aria-hidden="true"></i>
             Create Ticket</a>
         </li>
+        <?php if ($admin) { ?>
+          <li class="nav-item <?= $page == 'reports.php' ? 'selected' : ''; ?>">
+            <a href=" reports.php" class="nav-link"><i class="fa fa-file-text text-success" aria-hidden="true"></i>
+              Reports</a>
+          </li>
+        <?php } ?>
       </ul>
 
       <span class="ms-auto navbar-text">

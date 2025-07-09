@@ -18,15 +18,9 @@ $currentdate = date('Y-m-d');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-    <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/sc-2.4.3/datatables.min.css" rel="stylesheet"
-        integrity="sha384-4YCf35SCoNErxKb3uZGFlBfNxnFh2r1O1NaAO7wl6CIB2geJDtriZeLwca3usiAR" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="../assets/css/styles.css" rel="stylesheet">
     <style>
-        table {
-            box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.21);
-        }
-
         .dragover {
             background-color: #1CAF9A;
             transition: all 0.2s ease-in-out;
@@ -56,21 +50,6 @@ $currentdate = date('Y-m-d');
             font-weight: bold;
             text-transform: uppercase;
         }
-
-        .approved {
-            background-color: #86de86 !important;
-            color: black !important
-        }
-
-        .pending {
-            background-color: #efdfae !important;
-            color: black !important
-        }
-
-        .rejected {
-            background-color: #ebbab9 !important;
-            color: black !important
-        }
     </style>
 </head>
 
@@ -79,14 +58,16 @@ $currentdate = date('Y-m-d');
         <div class="br-pagebody">
             <div class="br-section-wrapper mt-3 col" id="wrapper">
                 <form action="" id="ticketform" enctype="multipart/form-data" method="">
-                    <h6>Request Details</h6>
+                    <div class="d-flex justify-content-between">
+                        <h6>Request Details</h6>
+                        <span class="small text-danger" style="font-size: 11px"><i><u>Fields with (*) are
+                                    required</u></i></span>
+                    </div>
                     <div class="form-control-sm">
                         <label class="form-label small ms-1" for="type">Concern Type</label><span
                             class="small text-danger">*</span>
                         <select class="form-select form-select-sm" id="type" name="type">
-                            <option>System Edit</option>
-                            <option>Technical Issues</option>
-                            <option>Others</option>
+
                         </select>
                     </div>
                     <div class="form-control-sm">
@@ -96,16 +77,14 @@ $currentdate = date('Y-m-d');
                             name="concern" required>
                     </div>
                     <div class="form-control-sm">
-                        <label for="source" class="form-label small ms-1">Source of Document</label><span
-                            class="small text-danger">*</span>
-                        <input type="text" class="form-control form-control-sm" placeholder="" id="source" name="source"
-                            required>
+                        <label for="source" class="form-label small ms-1">Source of Document</label>
+                        <input type="text" class="form-control form-control-sm" placeholder="" id="source"
+                            name="source">
                     </div>
                     <div class="form-control-sm">
-                        <label for="borrower" class="form-label small ms-1">Borrower</label><span
-                            class="small text-danger">*</span>
+                        <label for="borrower" class="form-label small ms-1">Borrower</label>
                         <input type="text" class="form-control form-control-sm" placeholder="" id="borrower"
-                            name="borrower" required>
+                            name="borrower">
                     </div>
                     <div class="form-control-sm">
                         <label for="reason" class="form-label small ms-1">Reason</label><span
@@ -163,9 +142,6 @@ $currentdate = date('Y-m-d');
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.datatables.net/v/dt/dt-2.2.2/sc-2.4.3/datatables.min.js"
-        integrity="sha384-1zOgQnerHMsipDKtinJHWvxGKD9pY4KrEMQ4zNgZ946DseuYh0asCewEBafsiuEt"
-        crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
         crossorigin="anonymous"></script>
@@ -173,6 +149,21 @@ $currentdate = date('Y-m-d');
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
         $(document).ready(function () {
+
+            //dynamic type select
+            $.ajax({
+                url: '../load/gettype.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    var select = $('#type');
+                    select.empty();
+                    data.forEach(function (type) {
+                        select.append('<option>' + type.type + '</option>');
+                    });
+                }
+            });
+
             var num = 1;
             $('#addMoreFiles').on('click', function () {
                 if (num < 4) {

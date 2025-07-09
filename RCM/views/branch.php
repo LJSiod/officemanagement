@@ -369,29 +369,19 @@
             });
 
             $.ajax({
-                url: '../load/getchannels.php',
+                url: '../load/getall.php',
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
-                    var select = $('#channel');
-                    var select2 = $('#channels');
-                    data.forEach(function (channel) {
-                        select2.append('<option value="' + channel.id + '">' + channel.channel + '</option>');
-                        select.append('<option value="' + channel.id + '">' + channel.channel + '</option>');
+                    var channelselect = $('#channel');
+                    channelselect.empty();
+                    data.channel.forEach(function (channel) {
+                        channelselect.append('<option>' + channel.channel + '</option>');
                     });
-                }
-            });
-
-            $.ajax({
-                url: '../load/getreceivers.php',
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    var select = $('#receiver');
-                    var select2 = $('#receivers');
-                    data.forEach(function (receiver) {
-                        select2.append('<option value="' + receiver.id + '">' + receiver.receivername + '</option>');
-                        select.append('<option value="' + receiver.id + '">' + receiver.receivername + '</option>');
+                    var receiverselect = $('#receiver');
+                    receiverselect.empty();
+                    data.receiver.forEach(function (receiver) {
+                        receiverselect.append('<option>' + receiver.receivername + '</option>');
                     });
                 }
             });
