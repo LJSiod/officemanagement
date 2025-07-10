@@ -24,6 +24,19 @@ if (isset($_POST['id'])) {
 		case 'online':
 			$sql = "UPDATE employee SET activeStat = NOW() WHERE ID = $id";
 			break;
+		case 'updatenote':
+			$file = '../temp/note.txt';
+			$lines = file($file, FILE_IGNORE_NEW_LINES);
+			foreach ($lines as $line) {
+				list($existing_id, $existing_note) = explode(':', $line);
+				if ($existing_id == $id) {
+					$new_line = $id . ': ' . $note;
+					$lines[array_search($line, $lines)] = $new_line;
+					break;
+				}
+			}
+			file_put_contents($file, implode("\n", $lines));
+			break;
 		default:
 			echo "Invalid action";
 			break;
@@ -33,17 +46,17 @@ if (isset($_POST['id'])) {
 		$stmt = $connmain->prepare($sql);
 		$stmt->execute();
 		$connmain->close();
+	} elseif ($action == 'updatenote') {
+		echo json_encode(["success" => true, "message" => "Success."]);
+		exit;
 	} else {
 		$stmt = $conn->prepare($sql);
 		$stmt->execute();
 		$conn->close();
 	}
-
-
 	echo json_encode(["success" => true, "message" => "Success."]);
 	exit;
 } else {
 	echo json_encode(["success" => false, "message" => "Failed."]);
 }
-
 ?>

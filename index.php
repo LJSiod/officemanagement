@@ -15,7 +15,7 @@ $officedbname = "officemanagementdb";
 $conn = new mysqli($servername, $username, $password, $dbname);
 $officeconn = new mysqli($servername, $username, $password, $officedbname);
 date_default_timezone_set('Asia/Manila');
-$_SESSION['version'] = '1.1.3';
+$_SESSION['version'] = '1.2.1';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];

@@ -83,21 +83,6 @@ $fullname = $_SESSION['name'];
             overflow: auto;
         }
 
-        .approved {
-            background-color: #86de86 !important;
-            color: black !important
-        }
-
-        .pending {
-            background-color: #efdfae !important;
-            color: black !important
-        }
-
-        .rejected {
-            background-color: #ebbab9 !important;
-            color: black !important
-        }
-
         @media (max-width: 767px) {
             .servingwrapper {
                 border-bottom: 1px solid #868e96;
@@ -224,7 +209,9 @@ $fullname = $_SESSION['name'];
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="receive" class="btn btn-sm btn-primary d-none">Accept</button>
+                    <?php if ($admin) { ?>
+                        <button type="button" id="receive" class="btn btn-sm btn-primary d-none">Accept</button>
+                    <?php } ?>
                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -241,68 +228,114 @@ $fullname = $_SESSION['name'];
     <script src="https://unpkg.com/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
     <script src="https://unpkg.com/viewerjs@1.11.7/dist/viewer.min.js"></script>
     <script>
+        // <div class="dot ${status == 'offline' ? 'text-secondary' : (status == 'away' ? 'text-warning' : 'text-success')}">⬤</div>
+
         $(document).ready(function () {
             loadStaffPanel();
-            heartbeat();
-            function heartbeat() {
-                console.log('ONLINE!');
-                $.ajax({
-                    url: '../actions/actions.php',
-                    type: 'POST',
-                    data: {
-                        id: <?= $id ?>,
-                        action: 'online',
-                    },
-                    success: function (response) {
-                    }
-                })
-            }
-
+            loadStatandServed();
             function loadStaffPanel() {
                 $.getJSON('../load/loadstaff.php', function (response) {
                     let html = '';
                     response.data.forEach(function (row) {
-                        let status = '';
-                        let diff = Date.now() - Date.parse(row.activeStat);
-                        let minutes = Math.floor((diff / 1000) / 60);
-                        if (minutes > 10) {
-                            status = 'offline';
-                        } else if (minutes > 5) {
-                            status = 'away';
+                        let noteHtml = '';
+                        if (row.id == <?= $id ?>) {
+                            noteHtml = `<input type="text" name="note" id="note${row.id}" class="noteinput" value="${row.note}"><button data-id="${row.id}"  class="ms-1 d-none" id="savenote">Save</button>`;
                         } else {
-                            status = 'online';
+                            noteHtml = `<span>${row.note}</span>`;
                         }
                         html += `
-                        <div class="servingwrapper br-section-wrapper bg-body col-sm mx-1">
-                            <div class="d-flex justify-content-between">
-                                <div class="fw-bold">${row.fullname}</div>
-                                <div class="dot ${status == 'offline' ? 'text-secondary' : (status == 'away' ? 'text-warning' : 'text-success')}">⬤</div>
-                            </div>
-                            <div class="note">Note: Test!</div>
-                            <hr>
-                            <div class="small fw-bold">Now Serving: </div>
-                            <div class="servingtable">                        
-                                <table class="table table-bordered" id="${row.id}">
-                                </table>
-                            </div>
-                        </div>
-                    `;
-                        $.getJSON('../load/getserve.php?id=' + row.id, function (response) {
-                            let html = '';
-                            response.forEach(function (row) {
-                                html += `
-                            <tr data-id="${row.id}" data-updatedby="${row.updatedby}" class="fw-bold">
-                                <td>${`0000${row.id}`.slice(-4)}</td>
-                                <td class="text-end">${row.branchname}</td>
-                            </tr>
-                        `;
-                            });
-                            $('#' + row.id).empty().html(html);
-                        });
+                                <div class="servingwrapper br-section-wrapper bg-body col-sm mx-1">
+                                  <div class="d-flex justify-content-between">
+                                    <div class="fw-bold">${row.fullname}</div>
+                                    <div id="dot${row.id}"></div>
+                                  </div>
+                                  <div class="note">Note: ${noteHtml}</div>
+                                  <hr>
+                                  <div class="small fw-bold">Now Serving: </div>
+                                  <div class="servingtable">                        
+                                    <table class="table table-bordered" id="${row.id}">
+                                    </table>
+                                  </div>
+                                </div>
+                                `;
                     });
                     $('#staffpanel').empty().html(html);
                 });
             }
+
+            function load(id) {
+                $.getJSON('../load/getserve.php?id=' + id, function (response) {
+                    let html = '';
+                    let stathtml = '';
+                    response.serving.forEach(function (row) {
+                        html += `
+                          <tr data-id="${row.id}" data-updatedby="${row.updatedby}" data-branchid="${row.branchid}" class="fw-bold">
+                            <td>${`0000${row.id}`.slice(-4)}</td>
+                            <td class="text-end">${row.branchname}</td>
+                          </tr>
+                        `;
+                    });
+                    let status = '';
+                    let diff = Date.now() - Date.parse(response.activeStat);
+                    let minutes = Math.floor((diff / 1000) / 60);
+                    if (minutes > 10) {
+                        status = 'text-secondary';
+                    } else if (minutes > 5) {
+                        status = 'text-warning';
+                    } else {
+                        status = 'text-success';
+                    }
+                    stathtml += `<div class="${status}">⬤</div>`;
+                    $('#dot' + id).empty().html(stathtml);
+                    $('#' + id).empty().html(html);
+                });
+            }
+
+            function loadStatandServed() {
+                $.ajax({
+                    url: '../load/loadstaff.php',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        response.data.forEach(function (row) {
+                            load(row.id);
+                        });
+                    }
+                })
+            }
+
+            $('#staffpanel').on('blur', '.noteinput', function () {
+                var id = <?= $id ?>;
+                var note = $('#note' + id).val();
+                Swal.fire({
+                    title: 'Update Note?',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, update!'
+                })
+                    .then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: '../actions/actions.php',
+                                type: 'POST',
+                                data: {
+                                    id: id,
+                                    action: 'updatenote',
+                                    note: note,
+                                },
+                                success: function (response) {
+                                    var result = JSON.parse(response);
+                                    if (result.success) {
+                                        loadStatandServed();
+                                    }
+                                }
+                            })
+                        }
+                    });
+            });
+
 
             function previewModal(id) {
                 $.ajax({
@@ -460,10 +493,18 @@ $fullname = $_SESSION['name'];
                 $('.removedrop').remove();
                 var data = $(this).closest('tr').data();
                 var updatedby = data.updatedby;
-                var menu = $('<div class="dropdown-menu small removedrop" id="actiondropdown" style="display:block; position:absolute; z-index:1000;">'
-                    + '<a class="dropdown-item small" href="#" id="preview2"><i class="fa fa-eye text-success" aria-hidden="true"></i> <span>Preview</span></a>'
-                    + (updatedby == <?= $id ?> ? '<a class="dropdown-item small" href="#" id="close"><i class="fa fa-check text-success" aria-hidden="true"></i> <span>Close Ticket</span></a>' : '<a class="dropdown-item small disabled" href="#" id="close"><i class="fa fa-check text-secondary" aria-hidden="true"></i> <span>Close Ticket</span></a>')
-                    + '</div>').appendTo('body');
+                var branchid = data.branchid;
+                console.log(data);
+                <?php if ($admin) { ?>
+                    var menu = $('<div class="dropdown-menu small removedrop" id="actiondropdown" style="display:block; position:absolute; z-index:1000;">'
+                        + '<a class="dropdown-item small" href="#" id="preview2"><i class="fa fa-eye text-success" aria-hidden="true"></i> <span>Preview</span></a>'
+                        + (updatedby == <?= $id ?> ? '<a class="dropdown-item small" href="#" id="close"><i class="fa fa-check text-success" aria-hidden="true"></i> <span>Close Ticket</span></a>' : '<a class="dropdown-item small disabled" href="#" id="close"><i class="fa fa-check text-secondary" aria-hidden="true"></i> <span>Close Ticket</span></a>')
+                        + '</div>').appendTo('body');
+                <?php } else { ?>
+                    var menu = $('<div class="dropdown-menu small removedrop" id="actiondropdown" style="display:block; position:absolute; z-index:1000;">'
+                        + (branchid != <?= $branchid ?> ? '<a class="dropdown-item small disabled" href="#" id="preview2"><i class="fa fa-eye text-secondary" aria-hidden="true"></i> <span>Preview</span></a>' : '<a class="dropdown-item small" href="#" id="preview2"><i class="fa fa-eye text-success" aria-hidden="true"></i> <span>Preview</span></a>')
+                        + '</div>').appendTo('body');
+                <?php } ?>
                 menu.css({ top: e.pageY + 'px', left: e.pageX + 'px' });
 
                 $(document).on('click', function () {
@@ -491,7 +532,8 @@ $fullname = $_SESSION['name'];
                         inputPlaceholder: 'Enter Note',
                         inputAttributes: {
                             rows: 5,
-                            id: "note-textarea"
+                            id: "note-textarea",
+                            style: "color: black;"
                         },
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -508,7 +550,7 @@ $fullname = $_SESSION['name'];
                                     result = JSON.parse(result);
                                     if (result.success) {
                                         table.ajax.reload(null, false);
-                                        loadStaffPanel();
+                                        loadStatandServed();
                                     } else {
                                         Swal.fire({
                                             icon: error,
@@ -531,6 +573,7 @@ $fullname = $_SESSION['name'];
                 var rowData = table.row($(this).closest('tr')).data();
                 console.log(rowData);
                 var ID = rowData.ID;
+                var branchid = rowData.branchid;
                 var status = rowData.status;
                 var updatedby = rowData.updatedby;
                 <?php if ($admin) { ?>
@@ -539,8 +582,8 @@ $fullname = $_SESSION['name'];
                         + '</div>').appendTo('body');
                 <?php } else { ?>
                     var menu = $('<div class="dropdown-menu small removedrop" id="actiondropdown" style="display:block; position:absolute; z-index:1000;">'
-                        + '<a class="dropdown-item small" href="#" id="preview"><i class="fa fa-eye text-success" aria-hidden="true"></i> <span>Preview</span></a>'
-                        + (status == 'OPEN' ? '<a class="dropdown-item small" data-id="' + ID + '" href="#" id="cancel"><i class="fa fa-trash-o text-danger" aria-hidden="true"></i> <span>Cancel</span></a>'
+                        + (branchid != <?= $branchid ?> ? '<a class="dropdown-item small disabled" href="#" id="preview"><i class="fa fa-eye text-secondary" aria-hidden="true"></i> <span>Preview</span></a>' : '<a class="dropdown-item small" href="#" id="preview"><i class="fa fa-eye text-success" aria-hidden="true"></i> <span>Preview</span></a>')
+                        + (status == 'OPEN' && branchid == <?= $branchid ?> ? '<a class="dropdown-item small" data-id="' + ID + '" href="#" id="cancel"><i class="fa fa-trash-o text-danger" aria-hidden="true"></i> <span>Cancel</span></a>'
                             : '<a class="dropdown-item small disabled" data-id="' + ID + '" href="#" id="cancel"><i class="fa fa-trash-o text-secondary" aria-hidden="true"></i> <span>Cancel</span></a>')
                         + '</div>').appendTo('body');
                 <?php } ?>
@@ -586,7 +629,7 @@ $fullname = $_SESSION['name'];
                                                 if (result.success) {
                                                     $('#previewmodal').modal('hide');
                                                     table.ajax.reload(null, false);
-                                                    loadStaffPanel();
+                                                    loadStatandServed();
                                                 } else {
                                                     Swal.fire({
                                                         icon: 'error',
@@ -628,27 +671,44 @@ $fullname = $_SESSION['name'];
                     }).then((result) => {
                         if (result.isConfirmed) {
                             $.ajax({
-                                url: '../actions/actions.php',
+                                url: '../actions/check.php',
                                 type: 'POST',
-                                data: {
-                                    id: id,
-                                    action: 'cancel',
-                                },
+                                data: { id: id },
                                 success: function (result) {
                                     result = JSON.parse(result);
-                                    if (result.success) {
-                                        table.ajax.reload(null, false);
-                                        loadStaffPanel();
+                                    if (result.vacant) {
+                                        $.ajax({
+                                            url: '../actions/actions.php',
+                                            type: 'POST',
+                                            data: {
+                                                id: id,
+                                                action: 'cancel',
+                                            },
+                                            success: function (result) {
+                                                result = JSON.parse(result);
+                                                if (result.success) {
+                                                    table.ajax.reload(null, false);
+                                                    loadStatandServed();
+                                                } else {
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: result.message,
+                                                        showConfirmButton: false,
+                                                        timer: 1500
+                                                    });
+                                                }
+                                            }
+                                        });
                                     } else {
                                         Swal.fire({
-                                            icon: error,
+                                            icon: 'error',
                                             title: result.message,
                                             showConfirmButton: false,
                                             timer: 1500
                                         });
                                     }
                                 }
-                            })
+                            });
                         }
                     });
                 });
@@ -662,9 +722,8 @@ $fullname = $_SESSION['name'];
 
             setInterval(() => {
                 table.ajax.reload(null, false);
-                loadStaffPanel();
-                heartbeat();
-            }, 10000);
+                loadStatandServed();
+            }, 5000);
         });
     </script>
 </body>

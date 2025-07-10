@@ -35,6 +35,7 @@ if (mysqli_num_rows($result) > 0) {
                 'filepath' => $attrow['filepath']
             );
         }
+        $updatedby = $row['updatedby'] ?? '';
         $data[] = array(
             'ID' => $row['TID'],
             'branchid' => $row['branchid'],
@@ -47,7 +48,7 @@ if (mysqli_num_rows($result) > 0) {
             'requestedby' => $row['requestedby'],
             'position' => $row['position'],
             'approvedby' => $row['approvedby'],
-            'updatedby' => $row['updatedby'],
+            'updatedby' => $updatedby,
             'datecreated' => $row['datecreated'],
             'dateupdated' => $row['dateupdated'],
             'status' => $row['status'],

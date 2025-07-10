@@ -49,7 +49,7 @@ $admin = in_array($positionid, [1, 2, 3, 13]);
     }
 
     .profile {
-      width: 220px;
+      width: 250px;
     }
   </style>
 </head>
@@ -70,6 +70,10 @@ $admin = in_array($positionid, [1, 2, 3, 13]);
           <a href="createticket.php" class="nav-link"><i class="fa fa-plus text-success" aria-hidden="true"></i>
             Create Ticket</a>
         </li>
+        <li class="nav-item <?= $page == 'records.php' ? 'selected' : ''; ?>">
+          <a href="records.php" class="nav-link"><i class="fa fa-clipboard text-success" aria-hidden="true"></i>
+            Records</a>
+        </li>
         <?php if ($admin) { ?>
           <li class="nav-item <?= $page == 'reports.php' ? 'selected' : ''; ?>">
             <a href=" reports.php" class="nav-link"><i class="fa fa-file-text text-success" aria-hidden="true"></i>
@@ -88,6 +92,9 @@ $admin = in_array($positionid, [1, 2, 3, 13]);
       </span>
 
       <div class="dropdown">
+        <div style="position: absolute; top: 3px; left: 3px;">
+          <span class="badge bg-danger text-white rounded-pill">1</span>
+        </div>
         <a class="btn btn-tertiary dropdown-toggle fw-bold" style="font-size: 0.8rem;" href="#" role="button"
           data-bs-toggle="dropdown" aria-expanded="false">
           <img src="../assets/image/profile.png" style="width: 30px; height: 30px;" name="profile"
@@ -103,6 +110,21 @@ $admin = in_array($positionid, [1, 2, 3, 13]);
           <h6 class="dropdown-item fw-bold text-center small teal" style="margin-top: -10px;">
             <?= $position ?>
           </h6>
+          <div id="container">
+            <div class="ms-1 small fw-bold">Notification:</div>
+            <table class="table table-sm table-hover small">
+              <tbody>
+                <tr>
+                  <td>I am a Notification!</td>
+                  <td class="text-muted text-end" style="font-size: 0.7rem;">1 minute ago</td>
+                </tr>
+                <tr>
+                  <td>I am a Notification!</td>
+                  <td class="text-muted text-end" style="font-size: 0.7rem;">1 minute ago</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item text-danger small" href="../../landing.php"><i class="fa fa-arrow-left"
               aria-hidden="true"></i>
@@ -123,6 +145,20 @@ $admin = in_array($positionid, [1, 2, 3, 13]);
   <script>
 
     $(document).ready(function () {
+      heartbeat();
+      function heartbeat() {
+        $.ajax({
+          url: '../actions/actions.php',
+          type: 'POST',
+          data: {
+            id: <?= $userid ?>,
+            action: 'online',
+          },
+          success: function (response) {
+          }
+        })
+      }
+
       const htmlElement = $('html');
       const switchElement = $('#darkModeSwitch');
       const wrapper = $('.br-section-wrapper');
@@ -177,5 +213,9 @@ $admin = in_array($positionid, [1, 2, 3, 13]);
           switchElement.click();
         }
       });
+
+      setInterval(() => {
+        heartbeat();
+      }, 5000);
     });
   </script>

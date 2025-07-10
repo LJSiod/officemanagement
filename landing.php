@@ -116,8 +116,8 @@ $evaluationadmin = in_array($positionid, [2, 6, 8, 9, 10, 11]);
 
         .grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
             gap: 0;
             width: 100%;
             height: 100%;
@@ -234,7 +234,7 @@ $evaluationadmin = in_array($positionid, [2, 6, 8, 9, 10, 11]);
 
             .grid {
                 grid-template-columns: 1fr;
-                grid-template-rows: repeat(4, 1fr);
+                grid-template-rows: repeat(6, 1fr);
                 height: 80vh;
             }
 
@@ -301,11 +301,11 @@ $evaluationadmin = in_array($positionid, [2, 6, 8, 9, 10, 11]);
 
                     IT Help Desk
                 </div>
-                <!-- <div class="card-square bg-4 border w-100 h-100" id="evaluationButton">
-                    <img src="assets/image/evaluation2.webp" alt="" title="Go to Evaluation System">
+                <div class="card-square bg-4 border w-100 h-100" onclick="location.href='#'">
+                    <img src="assets/image/archive.webp" alt="" title="Go to Memo Archive">
 
-                    Evaluation System
-                </div> -->
+                    Memo Archive
+                </div>
             </div>
         </div>
     </div>
